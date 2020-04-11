@@ -24,8 +24,8 @@ curl -X POST localhost:8080/echo -d '{"request":"world"}' -H "Content-Type: appl
 ## instructions
 
 ```
-(cd backend && ./mvnw clean package)
-(cd frontend && npm install && npm run build)
+(cd src/backend && ./mvnw clean package)
+(cd src/frontend && npm install && npm run build)
 ```
 
 # deployment
@@ -33,7 +33,7 @@ curl -X POST localhost:8080/echo -d '{"request":"world"}' -H "Content-Type: appl
 ## local
 
 ```
-cd backend && ./mvnw clean spring-boot:run
+cd src/backend && ./mvnw clean spring-boot:run
 #in another window
-cd frontend && node start
+cd src/frontend && node start
 ```
