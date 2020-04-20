@@ -58,7 +58,9 @@ resource "aws_api_gateway_method_response" "s3proxy_200" {
     "application/json" = "Empty"
   }
   response_parameters = {
-    "method.response.header.Content-type" = true
+  #this is case sensitive Content-type is allowed but the returned Content-Type is application/json
+  #not the bucket object meta data
+    "method.response.header.Content-Type" = true
   }
 }
 
@@ -70,7 +72,7 @@ resource "aws_api_gateway_integration_response" "s3proxy_response_200" {
 
   selection_pattern = "-"
   response_parameters = {
-    "method.response.header.Content-type" = "integration.response.header.Content-type"
+    "method.response.header.Content-Type" = "integration.response.header.Content-Type"
   }
 }
 

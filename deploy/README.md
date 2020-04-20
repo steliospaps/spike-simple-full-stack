@@ -17,4 +17,4 @@ terraform init \
 ```
 
 # api gateway api_gw_logging
-see https://www.rockedscience.net/articles/api-gateway-logging-with-terraform/
+see https://www.rockedscience.net/articles/api-gateway-logging-with-terraform/  
