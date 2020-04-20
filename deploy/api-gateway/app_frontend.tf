@@ -48,9 +48,37 @@ resource "aws_api_gateway_integration" "s3proxy" {
     }
 }
 
-resource "aws_api_gateway_deployment" "s3proxy" {
+resource "aws_api_gateway_method_response" "s3proxy_200" {
+  rest_api_id = aws_api_gateway_rest_api.api-gw.id
+  resource_id = aws_api_gateway_resource.s3proxy.id
+  http_method = aws_api_gateway_method.s3proxy.http_method
+  status_code = "200"
+
+  response_models = {
+    "application/json" = "Empty"
+  }
+  response_parameters = {
+    "method.response.header.Content-type" = true
+  }
+}
+
+resource "aws_api_gateway_integration_response" "s3proxy_response_200" {
+  rest_api_id = aws_api_gateway_rest_api.api-gw.id
+  resource_id = aws_api_gateway_resource.s3proxy.id
+  http_method = aws_api_gateway_method.s3proxy.http_method
+  status_code = aws_api_gateway_method_response.s3proxy_200.status_code
+
+  selection_pattern = "-"
+  response_parameters = {
+    "method.response.header.Content-type" = "integration.response.header.Content-type"
+  }
+}
+
+
+resource "aws_api_gateway_deployment" "s3proxy_test" {
   depends_on = [
-    aws_api_gateway_integration.s3proxy
+    aws_api_gateway_integration.s3proxy,
+    aws_api_gateway_integration_response.s3proxy_response_200
   ]
 
   rest_api_id = aws_api_gateway_rest_api.api-gw.id
@@ -89,6 +117,7 @@ resource "aws_iam_role_policy_attachment" "frontendReader_bucketRoPolicy" {
 resource "aws_iam_policy" "bucketRoPolicy" {
   name = "apigwRO-${aws_s3_bucket.frontend.bucket}"
   description = "can read bucket ${aws_s3_bucket.frontend.bucket}"
+  #TODO: do I need the logging or just use a logging for the api gw?
   policy = <<EOF
 {
 "Version": "2012-10-17",
@@ -96,14 +125,21 @@ resource "aws_iam_policy" "bucketRoPolicy" {
     {
         "Effect": "Allow",
         "Action": [
-            "logs:*"
+            "logs:CreateLogGroup",
+            "logs:CreateLogStream",
+            "logs:DescribeLogGroups",
+            "logs:DescribeLogStreams",
+            "logs:PutLogEvents",
+            "logs:GetLogEvents",
+            "logs:FilterLogEvents"
         ],
-        "Resource": "arn:aws:logs:*:*:*"
+        "Resource": "*"
     },
     {
         "Effect": "Allow",
         "Action": [
-            "s3:GetObject"
+            "s3:Get*",
+            "s3:List*"
         ],
         "Resource": "arn:aws:s3:::${aws_s3_bucket.frontend.bucket}/*"
     }
@@ -113,6 +149,29 @@ resource "aws_iam_policy" "bucketRoPolicy" {
 EOF
 }
 
+
+resource "aws_api_gateway_method_settings" "s3proxy_test_settings" {
+  #see https://www.rockedscience.net/articles/api-gateway-logging-with-terraform/
+  rest_api_id = aws_api_gateway_rest_api.api-gw.id
+  stage_name  = aws_api_gateway_deployment.s3proxy_test.stage_name
+  method_path = "*/*"
+  settings {
+    # Enable CloudWatch logging and metrics
+    metrics_enabled        = false
+    data_trace_enabled     = true
+    logging_level          = "INFO"
+    # Limit the rate of calls to prevent abuse and unwanted charges
+    throttling_rate_limit  = 100
+    throttling_burst_limit = 50
+  }
+}
+
+#log expiration
+resource "aws_cloudwatch_log_group" "api_gateway_s3Proxy_test_logs" {
+  name = "API-Gateway-Execution-Logs_${aws_api_gateway_rest_api.api-gw.id}/${aws_api_gateway_deployment.s3proxy_test.stage_name}"
+
+  retention_in_days = "7"
+}
 
 /*
 resource "aws_api_gateway_method" "s3proxy_get" {
