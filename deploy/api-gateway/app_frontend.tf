@@ -8,6 +8,14 @@ resource "aws_s3_bucket" "frontend" {
   )
 }
 
+resource "aws_s3_bucket_object" "object" {
+  bucket = aws_s3_bucket.frontend.bucket
+  key    = "index.html"
+  source = "dummy_frontend/index.html"
+  content_type="text/html"
+  #todo verify this is not updated on tf apply
+}
+
 #https://stackoverflow.com/questions/50600893/api-gateway-proxy-for-s3-with-subdirectories
 
 
@@ -25,6 +33,7 @@ resource "aws_api_gateway_method" "s3proxy" {
 
   request_parameters = {
     "method.request.path.proxy" = true
+    "method.request.header.Accept" = true
   }
 }
 
@@ -45,6 +54,7 @@ resource "aws_api_gateway_integration" "s3proxy" {
   passthrough_behavior    = "WHEN_NO_MATCH"
   request_parameters = {
       "integration.request.path.proxy" = "method.request.path.proxy"
+      "integration.request.header.Accept" = "method.request.header.Accept"
     }
 }
 
@@ -55,11 +65,12 @@ resource "aws_api_gateway_method_response" "s3proxy_200" {
   status_code = "200"
 
   response_models = {
-    "application/json" = "Empty"
+    #"application/json" = "Empty"
   }
-  response_parameters = {
+
   #this is case sensitive Content-type is allowed but the returned Content-Type is application/json
   #not the bucket object meta data
+  response_parameters = {
     "method.response.header.Content-Type" = true
   }
 }
@@ -74,6 +85,9 @@ resource "aws_api_gateway_integration_response" "s3proxy_response_200" {
   response_parameters = {
     "method.response.header.Content-Type" = "integration.response.header.Content-Type"
   }
+
+
+  depends_on = [aws_api_gateway_integration.s3proxy]
 }
 
 
@@ -175,24 +189,6 @@ resource "aws_cloudwatch_log_group" "api_gateway_s3Proxy_test_logs" {
   retention_in_days = "7"
 }
 
-/*
-resource "aws_api_gateway_method" "s3proxy_get" {
-  rest_api_id = aws_api_gateway_rest_api.api-gw.id
-  resource_id   = aws_api_gateway_resource.s3proxy.id
-  http_method   = "GET"
-  authorization = "NONE"
-}
-
-
-resource "aws_api_gateway_deployment" "s3proxy" {
-  depends_on = [
-  ]
-
-  rest_api_id = "${aws_api_gateway_rest_api.api-gw.id}"
-  stage_name  = "test"
-}
-
 output "base_url" {
-  value = "${aws_api_gateway_deployment.s3proxy.invoke_url}"
+  value = aws_api_gateway_deployment.s3proxy_test.invoke_url
 }
-*/
