@@ -12,5 +12,8 @@ build:    ## prod build
 
 deploy:   ## deploy stage (default test)
 deploy: build
-	aws s3 sync --delete build/ s3://$$(cd ../../deploy/api-gateway/ && terraform output bucket_test)
+	$(eval BUCKET=$(shell (cd ../../deploy/api-gateway/ && terraform output bucket_test)))
+	test -n "$(BUCKET)" #fail fast if the state is not there
+	aws s3 sync --delete build/ s3://$(BUCKET)
+	@echo '*******************'
 	@echo available at $$(cd ../../deploy/api-gateway/ && terraform output base_url_test)/index.html
