@@ -1,3 +1,12 @@
+# about
+simple app to demonstrate full stack deployment
+# deploy
+with AWS_PROFILE set in the environment:
+```sh
+make deploy
+```
+
+# development
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts
