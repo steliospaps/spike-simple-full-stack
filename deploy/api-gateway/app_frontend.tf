@@ -189,6 +189,9 @@ resource "aws_cloudwatch_log_group" "api_gateway_s3Proxy_test_logs" {
   retention_in_days = "7"
 }
 
-output "base_url" {
+output "base_url_test" {
   value = aws_api_gateway_deployment.s3proxy_test.invoke_url
+}
+output "bucket_test" {
+  value = aws_s3_bucket.frontend.bucket
 }

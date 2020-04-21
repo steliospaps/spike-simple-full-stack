@@ -1,0 +1,16 @@
+.PHONY: deploy build clean help
+.DEFAULT: help
+## see https://devhints.io/makefile
+## see https://gist.github.com/prwhite/8168133
+help:     ## Show this help.
+	@fgrep -h "##" $(MAKEFILE_LIST) | fgrep -v fgrep | sed -e 's/\\$$//' | sed -e 's/##//'
+clean:    ## cleanup temporary files
+	@rm -rf build
+
+build:    ## prod build
+	npm run build
+
+deploy:   ## deploy stage (default test)
+deploy: build
+	aws s3 sync --delete build/ s3://$$(cd ../../deploy/api-gateway/ && terraform output bucket_test)
+	@echo available at $$(cd ../../deploy/api-gateway/ && terraform output base_url_test)/index.html
