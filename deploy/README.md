@@ -1,5 +1,5 @@
 # about
-- api-gateway
+- api-gateway-s3-eb: An api gateway facade to an s3 deployment, and an elastic beanstalk backend
 
 # terraform
 terraform is used for each deployment.
@@ -20,4 +20,4 @@ terraform init \
 see https://www.rockedscience.net/articles/api-gateway-logging-with-terraform/
 and see https://www.terraform.io/docs/providers/aws/r/api_gateway_account.html
 
-for enabling gw logging 
+for enabling gw logging
