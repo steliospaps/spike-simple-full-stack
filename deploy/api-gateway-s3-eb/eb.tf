@@ -108,7 +108,7 @@ locals {
       "InstanceTypes" = "t3.nano,t3a.micro"
     }
     "aws:ec2:vpc" = {
-      "AssociatePublicIpAddress" = true
+      "AssociatePublicIpAddress" = false
       "VPCId" = local.vpc.id
       "Subnets" = join(",",sort(local.subnets.*.id))
       "ELBSubnets" = join(",",sort(local.subnets.*.id))
