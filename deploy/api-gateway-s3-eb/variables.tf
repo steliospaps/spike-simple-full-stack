@@ -1,3 +1,18 @@
+variable "region" {
+  description = "the region (where this is applied)"
+}
+
+variable "STATE_BUCKET" {
+  description = "the state bucket"
+}
+variable "STATE_REGION" {
+  description = "the state region"
+}
+
+variable "key" {
+  description = "the key inside the state bucket"
+}
+
 variable "billing_tag" {
   type=string
   default="STELIOS"
@@ -6,12 +21,6 @@ variable "billing_tag" {
 locals {
   common_tags = {
     "billing"="${var.billing_tag}",
-    "Terraform"="true"
+    "Terraform"="${var.STATE_REGION}/${var.STATE_BUCKET}/${var.key}"
   }
-}
-
-variable "apply_immediatelly" {
-  type=bool
-  description = "apply immediatelly even if this would cause a service disruption"
-  default = false
 }

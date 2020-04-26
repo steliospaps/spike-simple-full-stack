@@ -14,8 +14,8 @@ TF_DEPLOY_DIR=../../deploy/api-gateway-s3-eb
 
 deploy:   ## deploy stage (default test)
 deploy: build
-	$(eval BUCKET=$(shell (cd $(TF_DEPLOY_DIR) && terraform output bucket_test)))
+	$(eval BUCKET=$(shell (cd $(TF_DEPLOY_DIR) && terraform output bucket)))
 	test -n "$(BUCKET)" #fail fast if the state is not there
 	aws s3 sync --delete build/ s3://$(BUCKET)
 	@echo '*******************'
-	@echo available at $$(cd $(TF_DEPLOY_DIR) && terraform output base_url_test)/index.html
+	@echo available at $$(cd $(TF_DEPLOY_DIR) && terraform output base_url)/index.html
