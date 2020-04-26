@@ -16,10 +16,10 @@ resource "aws_s3_bucket_object" "object" {
   #todo verify this is not updated on tf apply
 }
 
-output "base_url" {
+output "frontend_base_url" {
   value = module.frontend.base_url
 }
-output "bucket" {
+output "frontend_bucket" {
   value = aws_s3_bucket.frontend.bucket
 }
 

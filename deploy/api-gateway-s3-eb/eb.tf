@@ -13,12 +13,6 @@ resource "aws_elastic_beanstalk_application" "tftest" {
   )
 
 }
-/*
-resource "aws_iam_instance_profile" "eb_service" {
-    name = "beanstalk-service-profile"
-    role = aws_iam_role.eb_service.name
-}
-*/
 resource "aws_iam_role" "eb_service" {
     name = "beanstalk-service-role"
     assume_role_policy = <<EOF
@@ -108,7 +102,7 @@ locals {
       "IamInstanceProfile" = aws_iam_instance_profile.eb_ec2.name
       //TODO: make this a conditional property
       "EC2KeyName" = "laptop-key"
-      "SecurityGroups" = aws_security_group.eb_ec2.id
+      //"SecurityGroups" = aws_security_group.eb_ec2.id
     }
     "aws:ec2:instances"={
       "InstanceTypes" = "t3.nano,t3a.micro"
@@ -116,26 +110,28 @@ locals {
     "aws:ec2:vpc" = {
       "AssociatePublicIpAddress" = true
       "VPCId" = local.vpc.id
-      "Subnets" = join(",",local.subnets.*.id)
-      "ELBSubnets" = join(",",local.subnets.*.id)
+      "Subnets" = join(",",sort(local.subnets.*.id))
+      "ELBSubnets" = join(",",sort(local.subnets.*.id))
     }
     "aws:elasticbeanstalk:environment" = {
       # LoadBalanced or SingleInstance
-      "EnvironmentType" = "LoadBalanced"
+      "EnvironmentType" = "SingleInstance"
       // classic application network
-      "LoadBalancerType" = "application"
+      //"LoadBalancerType" = "application"
       "ServiceRole"= aws_iam_role.eb_service.name
     }
     "aws:elasticbeanstalk:healthreporting:system" = {
       // basic enhanced
       "SystemType" = "enhanced"
-      // Ok Warning Degraded Severe //TODO: revisit this one it works
-      "HealthCheckSuccessThreshold" = "Severe"
+      // Ok Warning Degraded Severe
+      //"HealthCheckSuccessThreshold" = "Ok"
     }
     "aws:elbv2:loadbalancer" = {
-      "SecurityGroups" = aws_security_group.eb_lb.id
+      //"SecurityGroups" = aws_security_group.eb_lb.id
     }
-
+    "aws:elasticbeanstalk:application:environment" = {
+      "SERVER_PORT" = "5000"
+    }
   }
 
   ebConfigFlat = flatten([
@@ -170,4 +166,37 @@ resource "aws_elastic_beanstalk_environment" "tfenvtest" {
       value = setting.value["value"]
     }
   }
+}
+
+resource "aws_s3_bucket" "eb_code" {
+  bucket_prefix = "eb-code-upload-"
+
+  force_destroy=true
+
+  tags = merge(
+    local.common_tags
+  )
+
+  lifecycle_rule {
+    id      = "daily_cleanup"
+    enabled = true
+    #staging location for uploads. cleanup daily
+    expiration {
+      days = 1
+    }
+  }
+
+}
+
+output "backend_url" {
+  value = "http://${aws_elastic_beanstalk_environment.tfenvtest.cname}"
+}
+output "backend_eb_app" {
+  value = aws_elastic_beanstalk_environment.tfenvtest.application
+}
+output "backend_eb_env" {
+  value = aws_elastic_beanstalk_environment.tfenvtest.name
+}
+output "backend_eb_bucket" {
+  value = aws_s3_bucket.eb_code.bucket
 }
