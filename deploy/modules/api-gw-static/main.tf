@@ -60,7 +60,8 @@ resource "aws_api_gateway_integration_response" "s3proxy_response_200" {
   http_method = aws_api_gateway_method.s3proxy.http_method
   status_code = aws_api_gateway_method_response.s3proxy_200.status_code
 
-  selection_pattern = "-"
+  //selection_pattern = "-" this makes tf modify it one very apply
+  selection_pattern = "" //tell tf this is the default
   response_parameters = {
     "method.response.header.Content-Type" = "integration.response.header.Content-Type"
   }
