@@ -18,11 +18,6 @@ variable "bucket_path" {
   type=string
 }
 
-variable "stage_name" {
-  description = "the stage name of the deplyment. e.g. test"
-  type=string
-}
-
 variable "logging_level" {
   description = "logging level for apigw INFO,WARN?,ERROR"
   default = "ERROR"
