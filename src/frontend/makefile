@@ -8,7 +8,7 @@ clean:    ## cleanup temporary files
 	@rm -rf build
 
 build:    ## prod build
-	$(eval BACKEND=$(shell (cd $(TF_DEPLOY_DIR) && terraform output backend_url)))
+	$(eval BACKEND=$(shell (cd $(TF_DEPLOY_DIR) && terraform output backend_relative_url)))
 	test -n "$(BACKEND)" #fail fast if the state is not there
 	REACT_APP_URL="$(BACKEND)/echo" npm run build
 

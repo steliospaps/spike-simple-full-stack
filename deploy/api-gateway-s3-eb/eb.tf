@@ -188,7 +188,7 @@ resource "aws_s3_bucket" "eb_code" {
 
 }
 
-output "backend_url" {
+output "backend_eb_url" {
   value = "http://${aws_elastic_beanstalk_environment.tfenvtest.cname}"
 }
 output "backend_eb_app" {

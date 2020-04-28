@@ -13,6 +13,14 @@ variable "stage_name" {
   type=string
 }
 
+
+variable "logging_level" {
+  description = "logging level for apigw INFO,WARN?,ERROR"
+  default = "ERROR"
+  type=string
+}
+
+
 variable "tags" {
   type=map(string)
   default = {}
