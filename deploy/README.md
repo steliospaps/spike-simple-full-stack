@@ -11,6 +11,7 @@ terraform is used for each deployment.
 
 #terraform init (only the first time)
 terraform init \
+  -backend-config=./backend.auto.tfvars \
   -backend-config="bucket=${TF_VAR_STATE_BUCKET:?}" \
   -backend-config="region=${TF_VAR_STATE_REGION:?}" \
   -backend-config="dynamodb_table=${TF_VAR_STATE_DYNAMO_DB_TABLE:?}"
