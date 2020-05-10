@@ -102,16 +102,18 @@ locals {
     "aws:autoscaling:launchconfiguration" ={
       "IamInstanceProfile" = aws_iam_instance_profile.eb_ec2.name
       //TODO: make this a conditional property
-      "EC2KeyName" = "laptop-key"
+      "EC2KeyName" = var.key_name
       "SecurityGroups" = aws_security_group.eb_ec2.id
     }
     "aws:ec2:instances"={
       "InstanceTypes" = "t3.nano,t3a.micro"
     }
     "aws:ec2:vpc" = {
-      "AssociatePublicIpAddress" = false
       "VPCId" = local.vpc.id
-      "Subnets" = join(",",sort(local.private_subnets.*.id))
+      //"AssociatePublicIpAddress" = false
+      //"Subnets" = join(",",sort(local.private_subnets.*.id))
+      "AssociatePublicIpAddress" = true
+      "Subnets" = join(",",sort(local.public_subnets.*.id))
       "ELBSubnets" = join(",",sort(local.public_subnets.*.id))
     }
     "aws:elasticbeanstalk:environment" = {

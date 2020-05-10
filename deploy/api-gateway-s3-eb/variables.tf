@@ -3,13 +3,16 @@ variable "region" {
 }
 
 variable "STATE_BUCKET" {
-  description = "the state bucket"
+ //comes from env TF_VAR_STATE_BUCKET
+  description = "the state bucket."
 }
 variable "STATE_REGION" {
+//comes from env TF_VAR_STATE_REGION
   description = "the state region"
 }
 
 variable "key" {
+//comes from backend.auto.tfvars
   description = "the key inside the state bucket"
 }
 
@@ -18,9 +21,19 @@ variable "billing_tag" {
   default="STELIOS"
 }
 
+variable "key_name" {
+  type=string
+  description = "key for the bastion host and the ec2boxes"
+}
+
+variable "enable_bastion" {
+  type=bool
+  default=false
+}
+
 locals {
   common_tags = {
     "billing"="${var.billing_tag}",
-    "Terraform"="${var.STATE_REGION}/${var.STATE_BUCKET}/${var.key}"
+    "Terraform"="${var.STATE_REGION}:${var.STATE_BUCKET}:${var.key}"
   }
 }

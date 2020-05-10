@@ -3,6 +3,7 @@ module "vpc" {
   zone_count = 2
   cidr="10.1.0.0/16"
   tags = local.common_tags
+  enable_flow_log=true
 }
 
 locals{

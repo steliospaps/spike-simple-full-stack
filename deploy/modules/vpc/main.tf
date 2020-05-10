@@ -4,6 +4,7 @@ locals{
   // alternative values aws_vpc.main.id
   common_tags = var.tags
   zone_count = var.zone_count > 0 ? min(var.zone_count,length(data.aws_availability_zones.available.names)) : length(data.aws_availability_zones.available.names)
+  vpc_name="myVpc"
 }
 
 data "aws_availability_zones" "available" {
@@ -16,16 +17,17 @@ resource "aws_vpc" "default" {
   tags = merge(
     local.common_tags,
     {
-      "Name" = "myVpc"
+      "Name" = local.vpc_name
     }
   )
 }
+
 resource "aws_internet_gateway" "gw" {
   vpc_id = aws_vpc.default.id
   tags = merge(
     local.common_tags,
     {
-      "Name" = "myVpc-gw"
+      "Name" = "${local.vpc_name}-gw"
     }
   )
 }
@@ -56,4 +58,29 @@ resource "aws_subnet" "private" {
       "Name" = "private-${data.aws_availability_zones.available.names[count.index]}"
     }
   )
+}
+
+resource "aws_route_table" "public" {
+  vpc_id = aws_vpc.default.id
+
+  tags = merge(
+    local.common_tags,
+    {
+      "Name" = local.vpc_name
+    }
+  )
+}
+
+resource "aws_route" "gw" {
+  route_table_id = aws_route_table.public.id
+  destination_cidr_block = "0.0.0.0/0"
+  gateway_id = aws_internet_gateway.gw.id
+
+}
+
+resource "aws_route_table_association" "public" {
+  count = length(aws_subnet.public)
+
+  subnet_id      = aws_subnet.public[count.index].id
+  route_table_id = aws_route_table.public.id
 }

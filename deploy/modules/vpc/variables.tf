@@ -17,3 +17,8 @@ variable "tags" {
     "Terraform" = "true"
   }
 }
+
+variable enable_flow_log {
+  type = bool
+  default = false
+}
