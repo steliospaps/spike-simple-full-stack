@@ -22,3 +22,11 @@ see https://www.rockedscience.net/articles/api-gateway-logging-with-terraform/
 and see https://www.terraform.io/docs/providers/aws/r/api_gateway_account.html
 
 for enabling gw logging
+
+## bastion
+
+```
+terraform apply -var "enable_bastion=true"
+. <(terraform output bastion_tunnel_command)
+aws_connect path/to/secret/key hostname_or_ip
+```
