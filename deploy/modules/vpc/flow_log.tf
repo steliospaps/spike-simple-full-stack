@@ -42,13 +42,14 @@ resource "aws_iam_role_policy" "flow_log" {
   name = "${local.vpc_name}-flow_log"
   role = aws_iam_role.flow_log[0].id
 
+//        "logs:CreateLogGroup", // disabled becasue it creates the group before tf does and it has no expiration
+
   policy = <<EOF
 {
   "Version": "2012-10-17",
   "Statement": [
     {
       "Action": [
-        "logs:CreateLogGroup",
         "logs:CreateLogStream",
         "logs:PutLogEvents",
         "logs:DescribeLogGroups",

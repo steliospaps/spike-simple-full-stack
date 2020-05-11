@@ -106,14 +106,14 @@ locals {
       "SecurityGroups" = aws_security_group.eb_ec2.id
     }
     "aws:ec2:instances"={
-      "InstanceTypes" = "t3.nano,t3a.micro"
+      "InstanceTypes" = "t3.nano,t3a.nano,t3.micro,t3a.micro"
     }
     "aws:ec2:vpc" = {
       "VPCId" = local.vpc.id
-      //"AssociatePublicIpAddress" = false
-      //"Subnets" = join(",",sort(local.private_subnets.*.id))
-      "AssociatePublicIpAddress" = true
-      "Subnets" = join(",",sort(local.public_subnets.*.id))
+      "AssociatePublicIpAddress" = false
+      "Subnets" = join(",",sort(local.private_subnets.*.id))
+      //"AssociatePublicIpAddress" = true
+      //"Subnets" = join(",",sort(local.public_subnets.*.id))
       "ELBSubnets" = join(",",sort(local.public_subnets.*.id))
     }
     "aws:elasticbeanstalk:environment" = {

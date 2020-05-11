@@ -40,20 +40,6 @@ resource "aws_security_group" "eb_ec2" {
   }
 }
 
-resource "aws_vpc_endpoint" "eb" {
-  vpc_id            = local.vpc.id
-  //TODO: variable for region
-  service_name      = "com.amazonaws.eu-west-1.elasticbeanstalk"
-  vpc_endpoint_type = "Interface"
-
-  security_group_ids = [
-    aws_security_group.eb_vpc_endpoint.id,
-  ]
-  subnet_ids = local.private_subnets.*.id
-  private_dns_enabled = true
-  tags = local.common_tags
-}
-
 resource "aws_security_group" "eb_lb" {
   name_prefix   = "eb_loadbalancer-security-group"
   vpc_id = local.vpc.id
@@ -93,10 +79,79 @@ resource "aws_security_group" "eb_vpc_endpoint" {
   }
 }
 
+#### endpoints needed by elb
+# TODO ssm?
+# com.amazonaws.eu-west-1.cloudformation
+/*
+resource "aws_vpc_endpoint" "ssm_messages" {
+  vpc_id            = local.vpc.id
+  service_name      = "com.amazonaws.${var.region}.ssm-messages"
+  vpc_endpoint_type = "Interface"
+
+  security_group_ids = [
+    aws_security_group.eb_vpc_endpoint.id,
+  ]
+  subnet_ids = local.private_subnets.*.id
+  private_dns_enabled = true
+  tags = local.common_tags
+}
+
+resource "aws_vpc_endpoint" "ssm" {
+  vpc_id            = local.vpc.id
+  service_name      = "com.amazonaws.${var.region}.ssm"
+  vpc_endpoint_type = "Interface"
+
+  security_group_ids = [
+    aws_security_group.eb_vpc_endpoint.id,
+  ]
+  subnet_ids = local.private_subnets.*.id
+  private_dns_enabled = true
+  tags = local.common_tags
+}
+*/
+resource "aws_vpc_endpoint" "sqs" {
+  vpc_id            = local.vpc.id
+  service_name      = "com.amazonaws.${var.region}.sqs"
+  vpc_endpoint_type = "Interface"
+
+  security_group_ids = [
+    aws_security_group.eb_vpc_endpoint.id,
+  ]
+  subnet_ids = local.private_subnets.*.id
+  private_dns_enabled = true
+  tags = local.common_tags
+}
+
+resource "aws_vpc_endpoint" "cloudformation" {
+  vpc_id            = local.vpc.id
+  service_name      = "com.amazonaws.${var.region}.cloudformation"
+  vpc_endpoint_type = "Interface"
+
+  security_group_ids = [
+    aws_security_group.eb_vpc_endpoint.id,
+  ]
+  subnet_ids = local.private_subnets.*.id
+  private_dns_enabled = true
+  tags = local.common_tags
+}
+
+
+resource "aws_vpc_endpoint" "eb" {
+  vpc_id            = local.vpc.id
+  service_name      = "com.amazonaws.${var.region}.elasticbeanstalk"
+  vpc_endpoint_type = "Interface"
+
+  security_group_ids = [
+    aws_security_group.eb_vpc_endpoint.id,
+  ]
+  subnet_ids = local.private_subnets.*.id
+  private_dns_enabled = true
+  tags = local.common_tags
+}
+
 resource "aws_vpc_endpoint" "eb_health" {
   vpc_id            = local.vpc.id
-  //TODO: variable for region
-  service_name      = "com.amazonaws.eu-west-1.elasticbeanstalk-health"
+  service_name      = "com.amazonaws.${var.region}.elasticbeanstalk-health"
   vpc_endpoint_type = "Interface"
 
   security_group_ids = [
@@ -105,5 +160,14 @@ resource "aws_vpc_endpoint" "eb_health" {
 
   subnet_ids = local.private_subnets.*.id
   private_dns_enabled = true
+  tags = local.common_tags
+}
+
+resource "aws_vpc_endpoint" "s3" {
+  vpc_id            = local.vpc.id
+  service_name      = "com.amazonaws.${var.region}.s3"
+  vpc_endpoint_type = "Gateway"
+
+  route_table_ids = [ local.vpc.main_route_table_id ]
   tags = local.common_tags
 }
