@@ -7,6 +7,10 @@ help:     ## Show this help.
 clean:    ## cleanup temporary files
 	@rm -rf build
 
+node_modules:
+	npm install
+
+build: | node_modules
 build:    ## prod build
 	$(eval BACKEND=$(shell (cd $(TF_DEPLOY_DIR) && terraform output backend_relative_url)))
 	test -n "$(BACKEND)" #fail fast if the state is not there

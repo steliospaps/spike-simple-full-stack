@@ -13,6 +13,28 @@ resource "aws_elastic_beanstalk_application" "tftest" {
   )
 
 }
+
+resource "null_resource" "dummy_backend" {
+  provisioner "local-exec" {
+    command = "cd dummy_backend && make build"
+  }
+}
+
+resource "aws_s3_bucket_object" "dummy_backend" {
+  bucket = aws_s3_bucket.eb_code.bucket
+  key    = "beanstalk/dummy_backend.zip"
+  source = "dummy_backend/target/beanstalk.zip"
+  depends_on = [null_resource.dummy_backend]
+}
+
+resource "aws_elastic_beanstalk_application_version" "dummy" {
+  name        = "dummy"
+  application = aws_elastic_beanstalk_application.tftest.name
+  description = "dummy backend that reports healthy, and needs no internet connectivity to startup"
+  bucket      = aws_s3_bucket.eb_code.bucket
+  key         = aws_s3_bucket_object.dummy_backend.key
+}
+
 resource "aws_iam_role" "eb_service" {
     name = "beanstalk-service-role"
     assume_role_policy = <<EOF
@@ -156,8 +178,10 @@ resource "aws_elastic_beanstalk_environment" "tfenvtest" {
   application         = aws_elastic_beanstalk_application.tftest.name
   solution_stack_name = "64bit Amazon Linux 2 v3.0.0 running Corretto 11"
 
+  version_label= aws_elastic_beanstalk_application_version.dummy.name
+
   #default 20m
-  wait_for_ready_timeout="20m"
+  wait_for_ready_timeout="10m"
 
   #see https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/beanstalk-environment-configuration-advanced.html
   #see https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/command-options-general.html
