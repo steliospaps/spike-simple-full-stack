@@ -18,6 +18,12 @@ variable "bucket_path" {
   type=string
 }
 
+variable "index_path" {
+  description = "index path"
+  type=string
+  default="index.html"
+}
+
 variable "tags" {
   type=map(string)
   default = {}

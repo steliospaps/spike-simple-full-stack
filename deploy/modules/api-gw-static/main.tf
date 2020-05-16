@@ -70,7 +70,74 @@ resource "aws_api_gateway_integration_response" "s3proxy_response_200" {
   depends_on = [aws_api_gateway_integration.s3proxy]
 }
 
+######################
+### / gets index.html
+######################
 
+resource "aws_api_gateway_method" "index" {
+  rest_api_id = var.rest_api_id
+  resource_id   = var.parent_id
+  http_method   = "GET"
+  authorization = "NONE"
+
+  request_parameters = {
+    "method.request.header.Accept" = true
+  }
+}
+
+resource "aws_api_gateway_integration" "index" {
+  rest_api_id = var.rest_api_id
+  resource_id = var.parent_id
+  http_method = aws_api_gateway_method.index.http_method
+
+  type="AWS"
+
+  #see https://docs.aws.amazon.com/apigateway/api-reference/resource/integration/
+  uri="arn:aws:apigateway:${var.region}:s3:path/${var.bucket_path}/${var.index_path}"
+
+  credentials=aws_iam_role.frontendReader.arn
+
+  integration_http_method = "GET"
+  passthrough_behavior    = "WHEN_NO_MATCH"
+  request_parameters = {
+      "integration.request.header.Accept" = "method.request.header.Accept"
+    }
+}
+
+resource "aws_api_gateway_method_response" "index_200" {
+  rest_api_id = var.rest_api_id
+  resource_id = var.parent_id
+  http_method = aws_api_gateway_method.index.http_method
+  status_code = "200"
+
+  response_models = {
+    #"application/json" = "Empty"
+  }
+
+  #this is case sensitive Content-type is allowed but the returned Content-Type is application/json
+  #not the bucket object meta data
+  response_parameters = {
+    "method.response.header.Content-Type" = true
+  }
+}
+
+resource "aws_api_gateway_integration_response" "index_response_200" {
+  rest_api_id = var.rest_api_id
+  resource_id = var.parent_id
+  http_method = aws_api_gateway_method.index.http_method
+  status_code = aws_api_gateway_method_response.index_200.status_code
+
+  //selection_pattern = "-" this makes tf modify it one very apply
+  selection_pattern = "" //tell tf this is the default
+  response_parameters = {
+    "method.response.header.Content-Type" = "integration.response.header.Content-Type"
+  }
+
+
+  depends_on = [aws_api_gateway_integration.index]
+}
+
+###
 
 resource "aws_iam_role" "frontendReader" {
   name = "apigwRO-s3_${var.bucket_path}"
