@@ -1,4 +1,4 @@
-.PHONY: deploy build clean help ebdeploy_non_block waitGood
+.PHONY: deploy build clean help ebdeploy_non_block waitGood TF_VARS
 .DEFAULT: help
 ## see https://devhints.io/makefile
 ## see https://gist.github.com/prwhite/8168133
@@ -6,12 +6,13 @@ help:     ## Show this help.
 	@fgrep -h "##" $(MAKEFILE_LIST) | fgrep -v fgrep | sed -e 's/\\$$//' | sed -e 's/##//'
 
 clean:    ## cleanup temporary files
-	mvn clean
+	./mvnw clean
 
-build: target   ## prod build
+build: ## prod build
+build: target
 
 target:
-	mvn clean package
+	./mvnw clean package
 
 SHELL=/bin/bash
 
@@ -20,8 +21,7 @@ WAIT_TIMEOUT_SECONDS=300
 waitGood: ## wait for the environment to go to good state
 waitGood_secondTime:
 
-waitGood waitGood_secondTime:
-	test -n "$(ENV)" # test ENV
+waitGood waitGood_secondTime: TF_VARS
 	@set -o pipefail; \
 	while true; \
 		do \
@@ -36,22 +36,22 @@ waitGood waitGood_secondTime:
 TF_DEPLOY_DIR:=../../deploy/api-gateway-s3-eb
 BUCKET_PATH:=eb_uploads/app-$(VERSION).jar
 VERSION:=$(shell echo $$(date +%Y%m%d-%H%M)-$$(git rev-parse --verify --short HEAD))
-APP:=$(shell (cd $(TF_DEPLOY_DIR) && terraform output backend_eb_app))
-ENV:=$(shell (cd $(TF_DEPLOY_DIR) && terraform output backend_eb_env))
-BUCKET:=$(shell (cd $(TF_DEPLOY_DIR) && terraform output backend_eb_bucket))
+
+TF_VARS:
+	$(eval APP=$(shell (cd $(TF_DEPLOY_DIR) && terraform output backend_eb_app)))
+	test -n "$(APP)" #APP
+	$(eval ENV=$(shell (cd $(TF_DEPLOY_DIR) && terraform output backend_eb_env)))
+	test -n "$(ENV)" #ENV
+	$(eval BUCKET=$(shell (cd $(TF_DEPLOY_DIR) && terraform output backend_eb_bucket)))
+	test -n "$(BUCKET)" #BUCKET
 
 ebmakeVersion: build ## upload a version variables: VERSION
-	test -n "$(BUCKET)" #BUCKET
-	test -n "$(APP)" #APP
-	test -n "$(ENV)" #ENV
 	aws s3 cp target/*.jar s3://$(BUCKET)/$(BUCKET_PATH)
 	aws elasticbeanstalk create-application-version --application-name $(APP) --version-label $(VERSION) --source-bundle S3Bucket="$(BUCKET)",S3Key="$(BUCKET_PATH)"
 
 ebdeploy_non_block:   ## deploy stage in elastic beanstalk without blocking. vars: VERSION
-ebdeploy_non_block: build ebmakeVersion
+ebdeploy_non_block: TF_VARS build ebmakeVersion
 	test -n "$(VERSION)" #VERSION
-	test -n "$(APP)" #APP
-	test -n "$(ENV)" #ENV
 	aws elasticbeanstalk update-environment --application-name $(APP) --environment-name $(ENV) --version-label $(VERSION)
 	@echo version=$(VERSION)
 
