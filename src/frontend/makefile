@@ -1,4 +1,4 @@
-.PHONY: deploy build clean help
+.PHONY: deploy clean help
 .DEFAULT: help
 ## see https://devhints.io/makefile
 ## see https://gist.github.com/prwhite/8168133
@@ -10,18 +10,22 @@ clean:    ## cleanup temporary files
 node_modules:
 	npm install
 
-build: | node_modules
+PUBLIC_URL=$(shell cd $(TF_DEPLOY_DIR) && terraform output frontend_base_url)
+BUCKET=$(shell (cd $(TF_DEPLOY_DIR) && terraform output frontend_bucket))
+BACKEND=$(shell (cd $(TF_DEPLOY_DIR) && terraform output backend_url))
+
+build: node_modules
 build:    ## prod build
-	$(eval BACKEND=$(shell (cd $(TF_DEPLOY_DIR) && terraform output backend_relative_url)))
-	test -n "$(BACKEND)" #fail fast if the state is not there
-	REACT_APP_URL="$(BACKEND)/echo" npm run build
+	test -n "$(BACKEND)" #check BACKEND
+	test -n "$(PUBLIC_URL)" #check PUBLIC_URL
+	REACT_APP_URL="$(BACKEND)/echo" PUBLIC_URL="$(PUBLIC_URL)" npm run build
 
 TF_DEPLOY_DIR=../../deploy/api-gateway-s3-eb
 
 deploy:   ## deploy stage (default test)
 deploy: build
-	$(eval BUCKET=$(shell (cd $(TF_DEPLOY_DIR) && terraform output frontend_bucket)))
 	test -n "$(BUCKET)" #fail fast if the state is not there
+	aws s3 sync build/ s3://$(BUCKET)
 	aws s3 sync --delete build/ s3://$(BUCKET)
 	@echo '*******************'
-	@echo available at $$(cd $(TF_DEPLOY_DIR) && terraform output frontend_base_url)/index.html
+	@echo available at $(PUBLIC_URL)
