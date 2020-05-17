@@ -51,9 +51,6 @@ output "backend_relative_url" {
 output "backend_url" {
   value = "${module.stage.base_url}/${local.api_path}"
 }
-output "frontend_bucket" {
-  value = aws_s3_bucket.frontend.bucket
-}
 
 module "stage" {
   source = "../modules/api-gw-stage"

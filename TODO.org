@@ -1,3 +1,2 @@
 * api-gw + eb
 ** TODO limit eb endpoint permissions
-* TODO cloudfront frontend

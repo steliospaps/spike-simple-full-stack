@@ -16,7 +16,8 @@ terraform init \
   -backend-config="region=${TF_VAR_STATE_REGION:?}" \
   -backend-config="dynamodb_table=${TF_VAR_STATE_DYNAMO_DB_TABLE:?}"
 ```
-
+# cloudfront
+deploy frontend using cloudfront in front of a bucket
 # api gateway api_gw_logging
 see https://www.rockedscience.net/articles/api-gateway-logging-with-terraform/
 and see https://www.terraform.io/docs/providers/aws/r/api_gateway_account.html
