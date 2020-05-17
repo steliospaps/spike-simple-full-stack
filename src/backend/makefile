@@ -15,7 +15,6 @@ target:
 
 SHELL=/bin/bash
 
-WAIT_FOR_HEALTY= aws elasticbeanstalk describe-environment-health --environment-name tf-test-env-name --attribute-names Status
 WAIT_TIMEOUT_SECONDS=300
 
 waitGood: ## wait for the environment to go to good state
