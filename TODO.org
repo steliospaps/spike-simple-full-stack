@@ -1,0 +1,7 @@
+* api-gw + eb
+** TODO / -> index
+** TODO optional vpc flow log
+** TODO remove unused endpoints
+** TODO limit eb endpoint permissions
+** TODO wait until eb version change has finished
+* TODO cloudfront frontend

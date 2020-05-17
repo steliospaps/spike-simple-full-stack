@@ -1,4 +1,0 @@
-- / -> index
-- optional vpc flow log
-- remove unused endpoints
-- limit eb endpoint permissions
