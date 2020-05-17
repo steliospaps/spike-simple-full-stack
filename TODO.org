@@ -1,2 +1,3 @@
 * api-gw + eb
 ** TODO limit eb endpoint permissions
+* TODO standalone eb
