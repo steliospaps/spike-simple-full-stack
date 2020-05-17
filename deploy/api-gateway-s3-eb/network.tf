@@ -3,7 +3,7 @@ module "vpc" {
   zone_count = 2
   cidr="10.1.0.0/16"
   tags = local.common_tags
-  enable_flow_log=true
+  enable_flow_log=false
 }
 
 locals{
@@ -109,6 +109,7 @@ resource "aws_vpc_endpoint" "ssm" {
   tags = local.common_tags
 }
 */
+
 resource "aws_vpc_endpoint" "sqs" {
   vpc_id            = local.vpc.id
   service_name      = "com.amazonaws.${var.region}.sqs"

@@ -1,5 +1,3 @@
 * api-gw + eb
-** TODO optional vpc flow log
-** TODO remove unused endpoints
 ** TODO limit eb endpoint permissions
 * TODO cloudfront frontend
