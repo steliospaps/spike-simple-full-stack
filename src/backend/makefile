@@ -5,7 +5,7 @@
 help:     ## Show this help.
 	@fgrep -h "##" $(MAKEFILE_LIST) | fgrep -v fgrep | sed -e 's/\\$$//' | sed -e 's/##//'
 clean:    ## cleanup temporary files
-	@rm -rf build
+	mvn clean
 
 build:    ## prod build
 	mvn clean package
