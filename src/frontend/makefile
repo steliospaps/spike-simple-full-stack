@@ -20,21 +20,20 @@ build:    ## prod build
 	test -n "$(PUBLIC_URL)" #check PUBLIC_URL
 	REACT_APP_URL="$(BACKEND)/echo" PUBLIC_URL="$(PUBLIC_URL)" npm run build
 
-
-apigw-deploy:   ## deploy stage in api gw
-apigw-deploy: deploy
-apigw-deploy: TF_DEPLOY_DIR=../../deploy/api-gateway-s3-eb
-
-cf-deploy:   ## deploy in cloudfront
-cf-deploy: deploy
-cf-deploy: TF_DEPLOY_DIR=../../deploy/cloudfront
-cf-deploy: BACKEND=https://nowhere
-cf-deploy: CFID=$(shell (cd $(TF_DEPLOY_DIR) && terraform output cf_distribution_id))
-	aws cloudfront create-invalidation --distribution-id $(CFID) --paths "/index.html"
-
 deploy: build
 	test -n "$(BUCKET)" #fail fast if the state is not there
 	aws s3 sync build/ s3://$(BUCKET)
 	aws s3 sync --delete build/ s3://$(BUCKET)
 	@echo '*******************'
 	@echo available at $(PUBLIC_URL)
+
+cf-deploy:   ## deploy in cloudfront
+cf-deploy: TF_DEPLOY_DIR=../../deploy/cloudfront
+cf-deploy: BACKEND=https://nowhere
+cf-deploy: CFID=$(shell (cd $(TF_DEPLOY_DIR) && terraform output cf_distribution_id))
+cf-deploy: deploy
+	aws cloudfront create-invalidation --distribution-id $(CFID) --paths "/index.html"
+
+apigw-deploy:   ## deploy stage in api gw
+apigw-deploy: deploy
+apigw-deploy: TF_DEPLOY_DIR=../../deploy/api-gateway-s3-eb

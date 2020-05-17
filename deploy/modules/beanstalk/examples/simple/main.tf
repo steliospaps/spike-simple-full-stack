@@ -1,10 +1,25 @@
+provider "aws" {
+  region="eu-west-1"
+}
+
+module "vpc" {
+  source = "../../../vpc"
+  zone_count = 2
+  cidr="10.1.0.0/16"
+  tags = {}
+  enable_flow_log=false
+}
+
+
 module "eb" {
-  source = "../modules/beanstalk"
-  vpc = local.vpc
-  public_subnets=local.public_subnets
-  private_subnets=local.private_subnets
-  region=var.region
-  tags =  local.common_tags
+  source = "../../"
+  vpc = module.vpc.vpc
+  public_subnets=module.vpc.public_subnets
+  private_subnets=module.vpc.private_subnets
+  region="eu-west-1"
+  tags = {
+    "Terraform"=true
+  }
   dummy_app_location = "dummy_backend/target/beanstalk.zip"
   module_depends_on = [null_resource.dummy_backend]
 
@@ -23,8 +38,8 @@ locals{
   env_name="my-test-env"
 }
 
-output "backend_eb_url" {
-  value = "http://${module.eb.cname}"
+output "backend_url" {
+  value = module.eb.endpoint_url
 }
 output "backend_eb_app" {
   value = local.app_name

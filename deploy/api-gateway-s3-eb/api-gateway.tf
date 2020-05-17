@@ -56,17 +56,17 @@ module "stage" {
   source = "../modules/api-gw-stage"
   rest_api_id = aws_api_gateway_rest_api.api-gw.id
   stage_name="dev"
-  stage_dependencies = concat(module.frontend.stage_dependencies, module.eb.stage_dependencies)
+  stage_dependencies = concat(module.frontend.stage_dependencies, module.eb_tunnel.stage_dependencies)
   tags=local.common_tags
   logging_level="INFO"
 }
 
-module "eb" {
+module "eb_tunnel" {
   source = "../modules/api-gw-tunnel"
   rest_api_id = aws_api_gateway_rest_api.api-gw.id
   parent_id = aws_api_gateway_rest_api.api-gw.root_resource_id
   tags=local.common_tags
-  url="http://${aws_elastic_beanstalk_environment.tfenvtest.cname}"
+  url="http://${module.eb.cname}"
   path_part=local.api_path
 }
 
