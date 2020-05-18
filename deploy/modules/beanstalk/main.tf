@@ -155,9 +155,14 @@ locals {
       "SERVER_PORT" = "5000"
     }
   }
+  ebConfigMergedWithOverrides = {
+    for namespace, props in local.ebConfig : namespace => merge(
+        props, lookup(var.config_override, namespace, {})
+    )
+  }
 
   ebConfigFlat = flatten([
-    for ns,props in local.ebConfig: [
+    for ns,props in local.ebConfigMergedWithOverrides: [
       for name, value in props : {
         namespace=ns
         name=name

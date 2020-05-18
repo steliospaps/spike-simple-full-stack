@@ -9,6 +9,14 @@ module "eb" {
 
   app_name=local.app_name
   env_name=local.env_name
+
+  config_override={
+     "aws:elasticbeanstalk:application:environment" = {
+        "SERVER_PORT" = "5000"
+        "CORS_ALLOWED_ORIGINS"="${local.frontend_base_url}"
+        "CORS_ALLOWED_METHODS"="GET,POST"
+    }
+  }
 }
 
 resource "null_resource" "dummy_backend" {

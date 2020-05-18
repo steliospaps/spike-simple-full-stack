@@ -37,6 +37,11 @@ variable key_name {
   default=""
 }
 
+variable config_override {
+  default ={}
+  description=" a map of namespace => name=>value see https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/beanstalk-environment-configuration-advanced.html and https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/command-options-general.html"
+}
+
 /*
     Add the following line to the resource in this module that depends on the completion of external module components:
 
