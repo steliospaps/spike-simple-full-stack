@@ -64,6 +64,7 @@ module "vpc" {
   cidr="10.1.0.0/16"
   tags = local.common_tags
   enable_flow_log=false
+  enable_beanstalk_endpoints = !var.use_public_ips
 }
 
 locals {

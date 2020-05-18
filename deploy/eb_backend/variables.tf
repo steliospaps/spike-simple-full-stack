@@ -17,6 +17,12 @@ variable "billing_tag" {
   default="STELIOS"
 }
 
+variable "use_public_ips" {
+  type=bool
+  default = true
+  description = "use public ips for the instances. This alloes them to talk to the internet"
+}
+
 locals {
   common_tags = {
     "billing"="${var.billing_tag}",
