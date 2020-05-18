@@ -4,8 +4,8 @@ module "eb" {
   public_subnets=local.public_subnets
   private_subnets= var.use_public_ips ? local.public_subnets : local.private_subnets
   tags =  local.common_tags
-  dummy_app_location = "dummy_backend/target/beanstalk.zip"
-  module_depends_on = [null_resource.dummy_backend]
+  dummy_app_location = var.use_public_ips ? "" : "dummy_backend/target/beanstalk.zip"
+  module_depends_on = [null_resource.dummy_backend.*]
 
   app_name=local.app_name
   env_name=local.env_name
@@ -23,6 +23,7 @@ module "eb" {
 }
 
 resource "null_resource" "dummy_backend" {
+  count = var.use_public_ips ? 0 : 1
   provisioner "local-exec" {
     command = "cd dummy_backend && make build"
   }

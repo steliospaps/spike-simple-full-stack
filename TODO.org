@@ -1,2 +1,1 @@
 * TODO limit eb endpoint permissions
-* TODO make eb create instances in public subnets without ednpoints
