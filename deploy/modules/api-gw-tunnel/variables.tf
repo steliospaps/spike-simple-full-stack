@@ -16,20 +16,8 @@ variable "url" {
 variable "path_part" {
   description = "path of the endpoint"
   type=string
-  default="api"
+  default=""
 }
-
-/*
-variable "region" {
-  description = "E.g eu-west-1"
-  type=string
-}
-
-variable "bucket_path" {
-  description = "bucket name and path not ending in '/' ('/' will be appended) e.g mybucket/path/to/website/content"
-  type=string
-}
-*/
 
 variable "tags" {
   type=map(string)

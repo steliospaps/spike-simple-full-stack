@@ -1,4 +1,4 @@
-.PHONY: deploy build clean help ebdeploy_non_block waitGood TF_VARS
+.PHONY: deploy build clean help ebdeploy_non_block waitGood TF_VARS ebbackend_deploy
 .DEFAULT: help
 ## see https://devhints.io/makefile
 ## see https://gist.github.com/prwhite/8168133
@@ -46,6 +46,7 @@ TF_VARS:
 	test -n "$(BUCKET)" #BUCKET
 
 ebmakeVersion: build ## upload a version variables: VERSION
+	test -n "$(VERSION)" #VERSION
 	aws s3 cp target/*.jar s3://$(BUCKET)/$(BUCKET_PATH)
 	aws elasticbeanstalk create-application-version --application-name $(APP) --version-label $(VERSION) --source-bundle S3Bucket="$(BUCKET)",S3Key="$(BUCKET_PATH)"
 
@@ -55,5 +56,9 @@ ebdeploy_non_block: TF_VARS build ebmakeVersion
 	aws elasticbeanstalk update-environment --application-name $(APP) --environment-name $(ENV) --version-label $(VERSION)
 	@echo version=$(VERSION)
 
-ebdeploy:   ## deploy stage in elastiv beanstalk vars: VERSION
+ebdeploy:   ## deploy stage in elastic beanstalk vars: VERSION TF_DEPLOY_DIR
 ebdeploy: waitGood ebdeploy_non_block waitGood_secondTime
+
+ebbackend_deploy: ## shorthand for ebdeploy TF_DEPLOY_DIR=../../deploy/eb_backend
+ebbackend_deploy: TF_DEPLOY_DIR=../../deploy/eb_backend
+ebbackend_deploy: ebdeploy

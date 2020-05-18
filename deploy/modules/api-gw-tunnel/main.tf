@@ -1,6 +1,7 @@
 #https://stackoverflow.com/questions/50600893/api-gateway-proxy-for-s3-with-subdirectories
 
 resource "aws_api_gateway_resource" "parent" {
+  count=length(var.path_part)>0 ? 1:0
   rest_api_id = var.rest_api_id
   parent_id   = var.parent_id
   path_part   = var.path_part
@@ -8,7 +9,7 @@ resource "aws_api_gateway_resource" "parent" {
 
 resource "aws_api_gateway_resource" "default" {
   rest_api_id = var.rest_api_id
-  parent_id   = aws_api_gateway_resource.parent.id
+  parent_id   = length(var.path_part)>0 ? aws_api_gateway_resource.parent[0].id : var.parent_id
   path_part   = "{proxy+}"
 }
 
