@@ -67,45 +67,9 @@ resource "aws_security_group" "eb_vpc_endpoint" {
     to_port     = 0
     cidr_blocks = var.private_subnets.*.cidr_block
   }
-  //TODO: is egress needed?
-  egress {
-    protocol    = "-1"
-    from_port   = 0
-    to_port     = 0
-    cidr_blocks = ["0.0.0.0/0"]
-  }
 }
 
 #### endpoints needed by elb
-# TODO ssm?
-# com.amazonaws.eu-west-1.cloudformation
-/*
-resource "aws_vpc_endpoint" "ssm_messages" {
-  vpc_id            = local.vpc.id
-  service_name      = "com.amazonaws.${var.region}.ssm-messages"
-  vpc_endpoint_type = "Interface"
-
-  security_group_ids = [
-    aws_security_group.eb_vpc_endpoint.id,
-  ]
-  subnet_ids = local.private_subnets.*.id
-  private_dns_enabled = true
-  tags = local.common_tags
-}
-
-resource "aws_vpc_endpoint" "ssm" {
-  vpc_id            = local.vpc.id
-  service_name      = "com.amazonaws.${var.region}.ssm"
-  vpc_endpoint_type = "Interface"
-
-  security_group_ids = [
-    aws_security_group.eb_vpc_endpoint.id,
-  ]
-  subnet_ids = local.private_subnets.*.id
-  private_dns_enabled = true
-  tags = local.common_tags
-}
-*/
 
 resource "aws_vpc_endpoint" "sqs" {
   vpc_id            = local.vpc.id
