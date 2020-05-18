@@ -65,7 +65,7 @@ resource "aws_security_group" "eb_vpc_endpoint" {
     protocol    = "-1"
     from_port   = 0
     to_port     = 0
-    security_groups = [aws_security_group.eb_ec2.id]
+    cidr_blocks = var.private_subnets.*.cidr_block
   }
   //TODO: is egress needed?
   egress {
