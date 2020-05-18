@@ -22,10 +22,6 @@ variable tags {
 
 }
 
-variable region {
-
-}
-
 variable app_name {
   type=string
 }

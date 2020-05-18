@@ -3,7 +3,6 @@ module "eb" {
   vpc = local.vpc
   public_subnets=local.public_subnets
   private_subnets=local.private_subnets
-  region=var.region
   tags =  local.common_tags
   dummy_app_location = "dummy_backend/target/beanstalk.zip"
   module_depends_on = [null_resource.dummy_backend]

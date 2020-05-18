@@ -16,7 +16,6 @@ module "eb" {
   vpc = module.vpc.vpc
   public_subnets=module.vpc.public_subnets
   private_subnets=module.vpc.private_subnets
-  region="eu-west-1"
   tags = {
     "Terraform"=true
   }

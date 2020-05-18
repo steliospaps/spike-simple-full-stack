@@ -22,3 +22,9 @@ variable enable_flow_log {
   type = bool
   default = false
 }
+
+variable enable_beanstalk_endpoints {
+  type = bool
+  default=true
+  description = "enable beanstalk related endpoints in the private subnets"
+}

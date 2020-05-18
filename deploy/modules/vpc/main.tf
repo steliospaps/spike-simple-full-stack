@@ -5,6 +5,7 @@ locals{
   common_tags = var.tags
   zone_count = var.zone_count > 0 ? min(var.zone_count,length(data.aws_availability_zones.available.names)) : length(data.aws_availability_zones.available.names)
   vpc_name="myVpc"
+  private_subnets = aws_subnet.private
 }
 
 data "aws_availability_zones" "available" {
