@@ -13,9 +13,9 @@ module "vpc" {
 
 module "eb" {
   source = "../../"
-  vpc = module.vpc.vpc
-  public_subnets=module.vpc.public_subnets
-  private_subnets=module.vpc.private_subnets
+  vpc_id = module.vpc.vpc.id
+  loadbalancer_subnet_ids=module.vpc.public_subnets.*.id
+  instance_subnet_ids=module.vpc.private_subnets.*.id
   tags = {
     "Terraform"=true
   }
@@ -24,6 +24,10 @@ module "eb" {
 
   app_name=local.app_name
   env_name=local.env_name
+
+  config_override={
+
+  }
 }
 
 resource "null_resource" "dummy_backend" {

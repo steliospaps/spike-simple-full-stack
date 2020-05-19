@@ -1,21 +1,21 @@
 locals{
-  vpc = var.vpc
+  vpc_id = var.vpc_id
   // alternative values aws_vpc.main.id
-  public_subnets=var.public_subnets
-  private_subnets=var.private_subnets
+  public_subnets=var.loadbalancer_subnet_ids
+  private_subnets=var.instance_subnet_ids
   common_tags=var.tags
 }
 
-variable vpc {
-
+variable vpc_id {
+  type=string
 }
 
-variable private_subnets {
-
+variable instance_subnet_ids {
+  type=list(string)
 }
 
-variable public_subnets {
-
+variable loadbalancer_subnet_ids {
+  type=list(string)
 }
 
 variable tags {

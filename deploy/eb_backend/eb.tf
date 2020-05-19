@@ -1,8 +1,8 @@
 module "eb" {
   source = "../modules/beanstalk"
-  vpc = local.vpc
-  public_subnets=local.public_subnets
-  private_subnets= var.use_public_ips ? local.public_subnets : local.private_subnets
+  vpc_id = local.vpc.id
+  loadbalancer_subnet_ids=local.public_subnets.*.id
+  instance_subnet_ids=var.use_public_ips ? local.public_subnets.*.id : local.private_subnets.*.id
   tags =  local.common_tags
   dummy_app_location = var.use_public_ips ? "" : "dummy_backend/target/beanstalk.zip"
   module_depends_on = [null_resource.dummy_backend.*]

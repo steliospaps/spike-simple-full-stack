@@ -128,12 +128,12 @@ locals {
       "InstanceTypes" = "t3.nano,t3a.nano,t3.micro,t3a.micro"
     }
     "aws:ec2:vpc" = {
-      "VPCId" = local.vpc.id
+      "VPCId" = local.vpc_id
       "AssociatePublicIpAddress" = false
-      "Subnets" = join(",",sort(local.private_subnets.*.id))
+      "Subnets" = join(",",sort(local.private_subnets))
       //"AssociatePublicIpAddress" = true
-      //"Subnets" = join(",",sort(local.public_subnets.*.id))
-      "ELBSubnets" = join(",",sort(local.public_subnets.*.id))
+      //"Subnets" = join(",",sort(local.public_subnets))
+      "ELBSubnets" = join(",",sort(local.public_subnets))
     }
     "aws:elasticbeanstalk:environment" = {
       # LoadBalanced or SingleInstance
