@@ -38,7 +38,7 @@ variable key_name {
 }
 
 variable config_override {
-  default ={}
+  default ={"dummy_ns_so_that_type_is_correct"={"key"="value"}}
   description=" a map of namespace => name=>value see https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/beanstalk-environment-configuration-advanced.html and https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/command-options-general.html"
 }
 

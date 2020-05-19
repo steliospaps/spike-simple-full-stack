@@ -128,11 +128,8 @@ locals {
       "InstanceTypes" = "t3.nano,t3a.nano,t3.micro,t3a.micro"
     }
     "aws:ec2:vpc" = {
-      "VPCId" = local.vpc_id
       "AssociatePublicIpAddress" = false
       "Subnets" = join(",",sort(local.private_subnets))
-      //"AssociatePublicIpAddress" = true
-      //"Subnets" = join(",",sort(local.public_subnets))
       "ELBSubnets" = join(",",sort(local.public_subnets))
     }
     "aws:elasticbeanstalk:environment" = {
@@ -155,8 +152,18 @@ locals {
       "SERVER_PORT" = "5000"
     }
   }
-  ebConfigMergedWithOverrides = {
+
+  vpc_stanza = var.vpc_id == null? {"dummy"={"key"="value"}}:{"aws:ec2:vpc"={"VPCId" = var.vpc_id}}
+
+  ebConfigWithVpc = {
     for namespace, props in local.ebConfig : namespace => merge(
+      props, lookup( local.vpc_stanza , namespace, {})
+    )
+  }
+
+  //this casues the first apply to fail and then succeed
+  ebConfigMergedWithOverrides = {
+    for namespace, props in local.ebConfigWithVpc : namespace => merge(
         props, lookup(var.config_override, namespace, {})
     )
   }
@@ -179,7 +186,7 @@ resource "aws_elastic_beanstalk_environment" "tfenvtest" {
   )
   name                = var.env_name
   application         = aws_elastic_beanstalk_application.tftest.name
-  solution_stack_name = "64bit Amazon Linux 2 v3.0.0 running Corretto 11"
+  solution_stack_name = "64bit Amazon Linux 2 v3.0.1 running Corretto 11"
 
   version_label= length(aws_elastic_beanstalk_application_version.dummy) > 0 ? aws_elastic_beanstalk_application_version.dummy[0].name : null
 
