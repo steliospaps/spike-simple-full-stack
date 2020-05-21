@@ -9,41 +9,20 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>io.github.steliospaps</groupId>
-	<artifactId>echo</artifactId>
+	<artifactId>simple-full-stack-app</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>echo</name>
 	<description>simple backed that echoes the input back</description>
 
 	<properties>
 		<java.version>11</java.version>
+		<start.class>io.github.steliospaps.echo.EchoApplication</start.class>
 	</properties>
 
 	<dependencies>
 		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-webflux</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>org.projectlombok</groupId>
-			<artifactId>lombok</artifactId>
-			<optional>true</optional>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-test</artifactId>
-			<scope>test</scope>
-			<exclusions>
-				<exclusion>
-					<groupId>org.junit.vintage</groupId>
-					<artifactId>junit-vintage-engine</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-		<dependency>
-			<groupId>io.projectreactor</groupId>
-			<artifactId>reactor-test</artifactId>
-			<scope>test</scope>
+			<groupId>io.github.steliospaps</groupId>
+			<artifactId>simple-full-stack-app-naked</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 
@@ -52,6 +31,9 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+				<configuration>
+					<mainClass>${start.class}</mainClass>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>
