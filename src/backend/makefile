@@ -1,4 +1,4 @@
-.PHONY: deploy build clean help ebdeploy_non_block waitGood TF_VARS ebbackend_deploy
+.PHONY: deploy build clean help ebdeploy_non_block waitGood TF_VARS ebbackend_deploy ebapigw_deploy ebdeploy
 .DEFAULT: help
 ## see https://devhints.io/makefile
 ## see https://gist.github.com/prwhite/8168133
@@ -33,7 +33,6 @@ waitGood waitGood_secondTime: TF_VARS
 			sleep 10; \
 		done;
 
-TF_DEPLOY_DIR:=../../deploy/api-gateway-s3-eb
 BUCKET_PATH:=eb_uploads/app-$(VERSION).jar
 VERSION:=$(shell echo $$(date +%Y%m%d-%H%M)-$$(git rev-parse --verify --short HEAD))
 
@@ -56,8 +55,12 @@ ebdeploy_non_block: TF_VARS build ebmakeVersion
 	aws elasticbeanstalk update-environment --application-name $(APP) --environment-name $(ENV) --version-label $(VERSION)
 	@echo version=$(VERSION)
 
-ebdeploy:   ## deploy stage in elastic beanstalk vars: VERSION TF_DEPLOY_DIR
+
 ebdeploy: waitGood ebdeploy_non_block waitGood_secondTime
+
+ebapigw_deploy: ## deploy stage in elastic beanstalk vars: VERSION TF_DEPLOY_DIR
+ebapigw_deploy: TF_DEPLOY_DIR:=../../deploy/api-gateway-s3-eb
+ebapigw_deploy: ebdeploy
 
 ebbackend_deploy: ## shorthand for ebdeploy TF_DEPLOY_DIR=../../deploy/eb_backend
 ebbackend_deploy: TF_DEPLOY_DIR=../../deploy/eb_backend
