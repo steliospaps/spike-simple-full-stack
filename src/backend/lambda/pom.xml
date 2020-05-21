@@ -4,22 +4,22 @@
                              http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-	<parent>
-		<groupId>org.springframework.boot</groupId>
-		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.2.6.RELEASE</version>
-		<relativePath/> <!-- lookup parent from repository -->
-	</parent>
-    
+  <parent>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-parent</artifactId>
+    <version>2.2.6.RELEASE</version>
+    <relativePath/> <!-- lookup parent from repository -->
+  </parent>
+
     <groupId>io.github.steliospaps</groupId>
-  	<artifactId>simple-full-stack-lambda</artifactId>
-  	<version>0.0.1-SNAPSHOT</version>
-  	<packaging>jar</packaging> 
-  	
-	<properties>
-		<java.version>11</java.version>
-		<start.class>io.github.steliospaps.echo.EchoApplication</start.class>
-	</properties>
+    <artifactId>simple-full-stack-lambda</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <packaging>jar</packaging>
+
+  <properties>
+    <java.version>11</java.version>
+    <start.class>io.github.steliospaps.echo.EchoApplication</start.class>
+  </properties>
 
 
     <dependencies>
@@ -29,37 +29,21 @@
         <version>1.5</version>
       </dependency>
       <dependency>
-    	<groupId>io.github.steliospaps</groupId>
-		<artifactId>simple-full-stack-app-naked</artifactId>
-		<version>0.0.1-SNAPSHOT</version>
-		<!-- exclusions>
-			<exclusion>
-				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-starter-webflux</artifactId>
-			</exclusion>
-		</exclusions -->
+        <groupId>io.github.steliospaps</groupId>
+        <artifactId>simple-full-stack-app-naked</artifactId>
+        <version>0.0.1-SNAPSHOT</version>
       </dependency>
-	  <!-- dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-      </dependency -->
-      <!-- https://mvnrepository.com/artifact/io.symphonia/lambda-logging -->
-        <!--  dependency>
-            <groupId>io.symphonia</groupId>
-            <artifactId>lambda-logging</artifactId>
-            <version>1.0.1</version>
-        </dependency -->
-        <dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-test</artifactId>
-			<scope>test</scope>
-			<exclusions>
-				<exclusion>
-					<groupId>org.junit.vintage</groupId>
-					<artifactId>junit-vintage-engine</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>      
+      <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-test</artifactId>
+      <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>org.junit.vintage</groupId>
+          <artifactId>junit-vintage-engine</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
     </dependencies>
 
     <build>
@@ -77,8 +61,6 @@
           <artifactId>maven-shade-plugin</artifactId>
           <configuration>
               <createDependencyReducedPom>false</createDependencyReducedPom>
-<!--              <shadedArtifactAttached>true</shadedArtifactAttached>
-              <shadedClassifierName>aws-lambda</shadedClassifierName> -->
           </configuration>
           <executions>
               <execution>
@@ -89,7 +71,7 @@
               <configuration>
                   <artifactSet>
                       <excludes>
-                          <exclude>org.apache.tomcat.embed:*</exclude>
+                          <exclude>org.apache.tomcat.embed:*</exclude><!-- not really needed -->
                           <exclude>org.springframework.boot:spring-boot-starter-reactor-netty:*</exclude>
                       </excludes>
                   </artifactSet>
