@@ -32,17 +32,17 @@
     	<groupId>io.github.steliospaps</groupId>
 		<artifactId>simple-full-stack-app-naked</artifactId>
 		<version>0.0.1-SNAPSHOT</version>
-		<exclusions>
+		<!-- exclusions>
 			<exclusion>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-starter-webflux</artifactId>
 			</exclusion>
-		</exclusions>
+		</exclusions -->
       </dependency>
-	  <dependency>
+	  <!-- dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
-      </dependency>
+      </dependency -->
       <!-- https://mvnrepository.com/artifact/io.symphonia/lambda-logging -->
         <!--  dependency>
             <groupId>io.symphonia</groupId>
@@ -90,6 +90,7 @@
                   <artifactSet>
                       <excludes>
                           <exclude>org.apache.tomcat.embed:*</exclude>
+                          <exclude>org.springframework.boot:spring-boot-starter-reactor-netty:*</exclude>
                       </excludes>
                   </artifactSet>
               </configuration>
