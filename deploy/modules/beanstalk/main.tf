@@ -162,6 +162,7 @@ locals {
   }
 
   //this casues the first apply to fail and then succeed
+  //TODO: also it contains a bug.  any keys present only on var.config_override are not included
   ebConfigMergedWithOverrides = {
     for namespace, props in local.ebConfigWithVpc : namespace => merge(
         props, lookup(var.config_override, namespace, {})
