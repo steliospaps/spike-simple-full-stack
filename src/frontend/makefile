@@ -1,4 +1,4 @@
-.PHONY: deploy clean help build
+.PHONY: deploy clean help build apigw-deploy cf-eb-deploy cf-deploy cf-lambda-deploy
 .DEFAULT: help
 ## see https://devhints.io/makefile
 ## see https://gist.github.com/prwhite/8168133
@@ -27,14 +27,21 @@ deploy: build
 	@echo '*******************'
 	@echo available at $(PUBLIC_URL)
 
-cf-deploy:   ## deploy in cloudfront
+cf-deploy:
 cf-deploy: TF_FRONT_DEPLOY_DIR=../../deploy/cloudfront
-cf-deploy: TF_BACK_DEPLOY_DIR=../../deploy/eb_backend
 cf-deploy: CFID=$(shell (cd $(TF_FRONT_DEPLOY_DIR) && terraform output cf_distribution_id))
 cf-deploy: deploy
 	aws cloudfront create-invalidation --distribution-id $(CFID) --paths "/index.html"
+
+cf-eb-deploy:   ## deploy in cloudfront
+cf-eb-deploy: TF_BACK_DEPLOY_DIR=../../deploy/eb_backend
+cf-eb-deploy: cf-deploy
 
 apigw-deploy:   ## deploy stage in api gw
 apigw-deploy: deploy
 apigw-deploy: TF_FRONT_DEPLOY_DIR=../../deploy/api-gateway-s3-eb
 apigw-deploy: TF_BACK_DEPLOY_DIR=../../deploy/api-gateway-s3-eb
+
+cf-lambda-deploy:   ## deploy in cloudfront
+cf-lambda-deploy: TF_BACK_DEPLOY_DIR=../../deploy/lambda_backend
+cf-lambda-deploy: cf-deploy

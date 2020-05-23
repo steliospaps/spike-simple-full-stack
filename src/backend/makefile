@@ -1,4 +1,4 @@
-.PHONY: deploy build clean help ebdeploy_non_block waitGood EB_TF_VARS ebbackend_deploy ebapigw_deploy ebdeploy
+.PHONY: deploy build clean help ebdeploy_non_block waitGood EB_TF_VARS ebbackend_deploy ebapigw_deploy ebdeploy lambda_deploy
 .DEFAULT: help
 ## see https://devhints.io/makefile
 ## see https://gist.github.com/prwhite/8168133
@@ -65,3 +65,11 @@ ebapigw_deploy: ebdeploy
 ebbackend_deploy: ## shorthand for ebdeploy TF_DEPLOY_DIR=../../deploy/eb_backend
 ebbackend_deploy: TF_DEPLOY_DIR=../../deploy/eb_backend
 ebbackend_deploy: ebdeploy
+
+lambda_deploy: ##deploy as a lambda
+	$(eval LAMBDA_ARN=$(shell cd ../../deploy/lambda_backend && terraform output lambda_arn))
+	test -n "$(LAMBDA_ARN)" # LAMBDA_ARN
+	aws lambda update-function-code --function-name $(LAMBDA_ARN)\
+	 --zip-file fileb://$(wildcard lambda/target/simple-*.jar)
+	aws lambda publish-version --function-name $(LAMBDA_ARN)\
+	 --description "$(VERSION)"
