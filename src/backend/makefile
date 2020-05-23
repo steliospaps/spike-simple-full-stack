@@ -1,4 +1,4 @@
-.PHONY: deploy build clean help ebdeploy_non_block waitGood TF_VARS ebbackend_deploy
+.PHONY: deploy build clean help ebdeploy_non_block waitGood EB_TF_VARS ebbackend_deploy ebapigw_deploy ebdeploy lambda_deploy
 .DEFAULT: help
 ## see https://devhints.io/makefile
 ## see https://gist.github.com/prwhite/8168133
@@ -21,7 +21,7 @@ WAIT_TIMEOUT_SECONDS=300
 waitGood: ## wait for the environment to go to good state
 waitGood_secondTime:
 
-waitGood waitGood_secondTime: TF_VARS
+waitGood waitGood_secondTime: EB_TF_VARS
 	@set -o pipefail; \
 	while true; \
 		do \
@@ -33,11 +33,10 @@ waitGood waitGood_secondTime: TF_VARS
 			sleep 10; \
 		done;
 
-TF_DEPLOY_DIR:=../../deploy/api-gateway-s3-eb
-BUCKET_PATH:=eb_uploads/app-$(VERSION).jar
+EB_BUCKET_PATH:=eb_uploads/app-$(VERSION).jar
 VERSION:=$(shell echo $$(date +%Y%m%d-%H%M)-$$(git rev-parse --verify --short HEAD))
 
-TF_VARS:
+EB_TF_VARS:
 	$(eval APP=$(shell (cd $(TF_DEPLOY_DIR) && terraform output backend_eb_app)))
 	test -n "$(APP)" #APP
 	$(eval ENV=$(shell (cd $(TF_DEPLOY_DIR) && terraform output backend_eb_env)))
@@ -47,18 +46,30 @@ TF_VARS:
 
 ebmakeVersion: build ## upload a version variables: VERSION
 	test -n "$(VERSION)" #VERSION
-	aws s3 cp target/*.jar s3://$(BUCKET)/$(BUCKET_PATH)
-	aws elasticbeanstalk create-application-version --application-name $(APP) --version-label $(VERSION) --source-bundle S3Bucket="$(BUCKET)",S3Key="$(BUCKET_PATH)"
+	aws s3 cp app/target/*.jar s3://$(BUCKET)/$(EB_BUCKET_PATH)
+	aws elasticbeanstalk create-application-version --application-name $(APP) --version-label $(VERSION) --source-bundle S3Bucket="$(BUCKET)",S3Key="$(EB_BUCKET_PATH)"
 
 ebdeploy_non_block:   ## deploy stage in elastic beanstalk without blocking. vars: VERSION
-ebdeploy_non_block: TF_VARS build ebmakeVersion
+ebdeploy_non_block: EB_TF_VARS build ebmakeVersion
 	test -n "$(VERSION)" #VERSION
 	aws elasticbeanstalk update-environment --application-name $(APP) --environment-name $(ENV) --version-label $(VERSION)
 	@echo version=$(VERSION)
 
-ebdeploy:   ## deploy stage in elastic beanstalk vars: VERSION TF_DEPLOY_DIR
+
 ebdeploy: waitGood ebdeploy_non_block waitGood_secondTime
+
+ebapigw_deploy: ## deploy stage in elastic beanstalk vars: VERSION TF_DEPLOY_DIR
+ebapigw_deploy: TF_DEPLOY_DIR:=../../deploy/api-gateway-s3-eb
+ebapigw_deploy: ebdeploy
 
 ebbackend_deploy: ## shorthand for ebdeploy TF_DEPLOY_DIR=../../deploy/eb_backend
 ebbackend_deploy: TF_DEPLOY_DIR=../../deploy/eb_backend
 ebbackend_deploy: ebdeploy
+
+lambda_deploy: ##deploy as a lambda
+	$(eval LAMBDA_ARN=$(shell cd ../../deploy/lambda_backend && terraform output lambda_arn))
+	test -n "$(LAMBDA_ARN)" # LAMBDA_ARN
+	aws lambda update-function-code --function-name $(LAMBDA_ARN)\
+	 --zip-file fileb://$(wildcard lambda/target/simple-*.jar)
+	aws lambda publish-version --function-name $(LAMBDA_ARN)\
+	 --description "$(VERSION)"

@@ -11,7 +11,10 @@ import reactor.core.publisher.Mono;
 @RestController
 @Slf4j
 public class EchoController {
-
+	{
+		log.info("created!");
+	}
+	
 	@RequestMapping(path = "/echo" , method = RequestMethod.POST)
 	public Mono<EchoResponse> echo(@RequestBody EchoRequest request) {
 		log.info("got {}",request);

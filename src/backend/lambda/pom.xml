@@ -1,0 +1,73 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+                             http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-parent</artifactId>
+    <version>2.2.6.RELEASE</version>
+    <relativePath/> <!-- lookup parent from repository -->
+  </parent>
+
+    <groupId>io.github.steliospaps</groupId>
+    <artifactId>simple-full-stack-lambda</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <packaging>jar</packaging>
+
+  <properties>
+    <java.version>11</java.version>
+    <start.class>io.github.steliospaps.echo.EchoApplication</start.class>
+  </properties>
+
+
+    <dependencies>
+      <dependency>
+        <groupId>com.amazonaws.serverless</groupId>
+        <artifactId>aws-serverless-java-container-springboot2</artifactId>
+        <version>1.5</version>
+      </dependency>
+      <dependency>
+        <groupId>io.github.steliospaps</groupId>
+        <artifactId>simple-full-stack-app-naked</artifactId>
+        <version>0.0.1-SNAPSHOT</version>
+      </dependency>
+    </dependencies>
+
+    <build>
+      <plugins>
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <configuration>
+                <source>${java.version}</source>
+                <target>${java.version}</target>
+            </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-shade-plugin</artifactId>
+          <configuration>
+              <createDependencyReducedPom>false</createDependencyReducedPom>
+          </configuration>
+          <executions>
+              <execution>
+                  <phase>package</phase>
+              <goals>
+                  <goal>shade</goal>
+              </goals>
+              <configuration>
+                  <artifactSet>
+                      <excludes>
+                          <exclude>org.apache.tomcat.embed:*</exclude><!-- not really needed -->
+                          <exclude>org.springframework.boot:spring-boot-starter-reactor-netty:*</exclude>
+                      </excludes>
+                  </artifactSet>
+              </configuration>
+              </execution>
+          </executions>
+        </plugin>
+      </plugins>
+    </build>
+</project>
