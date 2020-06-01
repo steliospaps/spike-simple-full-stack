@@ -18,8 +18,10 @@ SHELL=/bin/bash
 
 WAIT_TIMEOUT_SECONDS=300
 
-waitGood: ## wait for the environment to go to good state
+waitGood: ## wait for the environment to go to good state CHEK_HEALTH=false to disable
 waitGood_secondTime:
+
+CHECK_HEALTH=true
 
 waitGood waitGood_secondTime: EB_TF_VARS
 	@set -o pipefail; \
@@ -32,9 +34,19 @@ waitGood waitGood_secondTime: EB_TF_VARS
 			[[ $$SECONDS -gt $(WAIT_TIMEOUT_SECONDS) ]] && echo timed out waiting >/dev/stderr && exit 1; \
 			sleep 10; \
 		done;
+		@set -o pipefail; \
+		while $(CHECK_HEALTH); \
+			do \
+				state=$$(aws elasticbeanstalk describe-environment-health --environment-name $(ENV) --attribute-names HealthStatus \
+				| jq -r .HealthStatus); \
+				echo $$(date --rfc-3339=seconds) "checking for $$SECONDS sec env=$(ENV) healthState=$$state" ; \
+				[[ "$$state" == "Ok" ]] && exit 0; \
+				[[ $$SECONDS -gt $(WAIT_TIMEOUT_SECONDS) ]] && echo timed out waiting >/dev/stderr && exit 1; \
+				sleep 10; \
+			done;
 
-EB_BUCKET_PATH:=eb_uploads/app-$(VERSION).zip
 VERSION:=$(shell echo $$(date +%Y%m%d-%H%M)-$$(git rev-parse --verify --short HEAD))
+EB_BUCKET_PATH:=eb_uploads/app-$(VERSION).zip
 
 EB_TF_VARS:
 	$(eval APP=$(shell (cd $(TF_DEPLOY_DIR) && terraform output backend_eb_app)))
