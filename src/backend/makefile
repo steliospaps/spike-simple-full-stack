@@ -33,7 +33,7 @@ waitGood waitGood_secondTime: EB_TF_VARS
 			sleep 10; \
 		done;
 
-EB_BUCKET_PATH:=eb_uploads/app-$(VERSION).jar
+EB_BUCKET_PATH:=eb_uploads/app-$(VERSION).zip
 VERSION:=$(shell echo $$(date +%Y%m%d-%H%M)-$$(git rev-parse --verify --short HEAD))
 
 EB_TF_VARS:
@@ -44,9 +44,18 @@ EB_TF_VARS:
 	$(eval BUCKET=$(shell (cd $(TF_DEPLOY_DIR) && terraform output backend_eb_bucket)))
 	test -n "$(BUCKET)" #BUCKET
 
-ebmakeVersion: build ## upload a version variables: VERSION
+app/target/beanstalk: $(shell find beanstalk -name '*' -print)
+	rm -rf $@
+	cp -r beanstalk $@
+	cp $(wildcard app/target/*.jar) $@/app.jar
+
+app/target/app.zip: app/target/beanstalk
+	rm -f $@
+	cd $< && zip -vr ../$(notdir $@) .
+
+ebmakeVersion: build app/target/app.zip ## upload a version variables: VERSION
 	test -n "$(VERSION)" #VERSION
-	aws s3 cp app/target/*.jar s3://$(BUCKET)/$(EB_BUCKET_PATH)
+	aws s3 cp app/target/app.zip s3://$(BUCKET)/$(EB_BUCKET_PATH)
 	aws elasticbeanstalk create-application-version --application-name $(APP) --version-label $(VERSION) --source-bundle S3Bucket="$(BUCKET)",S3Key="$(EB_BUCKET_PATH)"
 
 ebdeploy_non_block:   ## deploy stage in elastic beanstalk without blocking. vars: VERSION
