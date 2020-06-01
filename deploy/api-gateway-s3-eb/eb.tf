@@ -10,6 +10,8 @@ module "eb" {
 
   app_name=local.app_name
   env_name=local.env_name
+
+  key_name=var.key_name
 }
 
 resource "null_resource" "dummy_backend" {

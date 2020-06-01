@@ -8,5 +8,5 @@ data "terraform_remote_state" "frontend" {
 }
 
 locals {
-  frontend_base_url = data.terraform_remote_state.frontend.outputs.frontend_base_url
+  cors_allowed_origins = var.cors_allowed_origins==""?data.terraform_remote_state.frontend.outputs.frontend_base_url : var.cors_allowed_origins
 }

@@ -17,10 +17,21 @@ variable "billing_tag" {
   default="STELIOS"
 }
 
+variable cors_allowed_origins {
+  type=string
+  default=""
+  description="if set to empty string then the cf frontnend is used"
+}
+
 variable "use_public_ips" {
   type=bool
   default = true
   description = "use public ips for the instances. This alloes them to talk to the internet"
+}
+
+variable "key_name" {
+  type=string
+  description = "key for the bastion host and the ec2boxes"
 }
 
 locals {
