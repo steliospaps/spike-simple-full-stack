@@ -9,9 +9,7 @@ clean:    ## cleanup temporary files
 	./mvnw clean
 
 build: ## prod build
-build: target
-
-target:
+build:
 	./mvnw clean package
 
 SHELL=/bin/bash
@@ -87,6 +85,7 @@ ebbackend_deploy: ## shorthand for ebdeploy TF_DEPLOY_DIR=../../deploy/eb_backen
 ebbackend_deploy: TF_DEPLOY_DIR=../../deploy/eb_backend
 ebbackend_deploy: ebdeploy
 
+lambda_deploy: build
 lambda_deploy: ##deploy as a lambda
 	$(eval LAMBDA_ARN=$(shell cd ../../deploy/lambda_backend && terraform output lambda_arn))
 	test -n "$(LAMBDA_ARN)" # LAMBDA_ARN

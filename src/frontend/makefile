@@ -33,7 +33,7 @@ cf-deploy: CFID=$(shell (cd $(TF_FRONT_DEPLOY_DIR) && terraform output cf_distri
 cf-deploy: deploy
 	aws cloudfront create-invalidation --distribution-id $(CFID) --paths "/index.html"
 
-cf-eb-deploy:   ## deploy in cloudfront
+cf-eb-deploy:   ## deploy in cloudfront+beanstalk
 cf-eb-deploy: TF_BACK_DEPLOY_DIR=../../deploy/eb_backend
 cf-eb-deploy: cf-deploy
 
@@ -42,6 +42,6 @@ apigw-deploy: deploy
 apigw-deploy: TF_FRONT_DEPLOY_DIR=../../deploy/api-gateway-s3-eb
 apigw-deploy: TF_BACK_DEPLOY_DIR=../../deploy/api-gateway-s3-eb
 
-cf-lambda-deploy:   ## deploy in cloudfront
+cf-lambda-deploy:   ## deploy in cloudfront+lambda
 cf-lambda-deploy: TF_BACK_DEPLOY_DIR=../../deploy/lambda_backend
 cf-lambda-deploy: cf-deploy
