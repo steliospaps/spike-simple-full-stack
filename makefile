@@ -87,6 +87,11 @@ cf-beanstalk-plan: ## plan cloudfront and beanstalk
 	$(call tf_plan,deploy/eb_backend)
 
 destroy: ## destroy fronetend and backend deployments
+	$(SILENT) $(call notify,destroy started $(BUILD_ID))
+	$(SILENT) $(MAKE) destroy-wrapped || ( $(call notify,destroy failed $(BUILD_ID)) && false )
+	$(SILENT) $(call notify,destroy sucess $(BUILD_ID) available at $(BASE_URL))
+
+destroy-wrapped:
 	$(call tf_init,deploy/cloudfront)
 	$(call tf_init,deploy/lambda_backend) #all backends point to the same key so destroying any of them applies to all
 	$(call tf_destroy,deploy/lambda_backend) #backend depends on frontend so reverse order of destruction
