@@ -1,9 +1,9 @@
 .PHONY: deploy clean help build apigw-deploy cf-eb-deploy cf-deploy cf-lambda-deploy
 .DEFAULT: help
-## see https://devhints.io/makefile
-## see https://gist.github.com/prwhite/8168133
+# see https://devhints.io/makefile
+# see https://gist.github.com/prwhite/8168133
 help:     ## Show this help.
-	@fgrep -h "##" $(MAKEFILE_LIST) | fgrep -v fgrep | sed -e 's/\\$$//' | sed -e 's/##//'
+	@fgrep -h "##" $(MAKEFILE_LIST) | fgrep -v fgrep | sed -e 's/\\$$//' | sed -e 's/##//'|sort
 	@echo     define SKIP_INIT to avoid repeated init during development
 	@echo     define SNS_ARN to get sns notifications
 TERRAFORM=terraform
@@ -41,6 +41,10 @@ endif
 #$(call tf_create,directory)
 define tf_apply
 	$(SILENT) echo apply $(1) && cd $(1) && $(TERRAFORM) apply -auto-approve
+endef
+
+define tf_apply2
+	$(SILENT) echo apply $(1) && cd $(1) && ($(TERRAFORM) apply -auto-approve || $(TERRAFORM) apply -auto-approve)
 endef
 
 #$(call tf_apply,directory)
@@ -85,6 +89,22 @@ cf-beanstalk-plan: ## plan cloudfront and beanstalk
 	$(call tf_init,deploy/eb_backend)
 	$(call tf_plan,deploy/cloudfront)
 	$(call tf_plan,deploy/eb_backend)
+
+cf-beanstalk: ## create cloudfront and beanstalk
+	$(SILENT) $(call notify,cf-beanstalk started $(BUILD_ID))
+	$(SILENT) $(MAKE) cf-beanstalk-wrapped || ( $(call notify,cf-beanstalk failed $(BUILD_ID)) && false )
+	$(SILENT) $(call notify,cf-beanstalk sucess $(BUILD_ID) available at $(BASE_URL))
+
+cf-beanstalk-wrapped:
+		$(call tf_init,deploy/cloudfront)
+		$(call tf_init,deploy/eb_backend)
+		$(call tf_apply,deploy/cloudfront)
+		@#apply twice becasue of tf? bug
+		$(call tf_apply2,deploy/eb_backend)
+		$(SILENT) cd src/frontend && $(MAKE) cf-eb-deploy
+		$(SILENT) cd src/backend && $(MAKE) ebbackend_deploy
+		$(eval BASE_URL:=$(shell cd deploy/cloudfront && $(TERRAFORM) output frontend_base_url))
+
 
 destroy: ## destroy fronetend and backend deployments
 	$(SILENT) $(call notify,destroy started $(BUILD_ID))
