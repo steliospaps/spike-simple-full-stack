@@ -42,9 +42,13 @@ data "archive_file" "dummy_non_empty_jar" {
   }
 }
 
+locals {
+  function_name="backend"
+}
+
 resource "aws_lambda_function" "backend" {
   filename      = data.archive_file.dummy_non_empty_jar.output_path
-  function_name = "backend"
+  function_name = local.function_name
   role          = aws_iam_role.iam_for_lambda.arn
   handler       = "io.github.steliospaps.echo.lambda.StreamLambdaHandler"
 
@@ -62,12 +66,14 @@ resource "aws_lambda_function" "backend" {
 
     }
   }
+
+  depends_on=[aws_cloudwatch_log_group.lambda_log]
 }
 
 
 # this will cause the logs to be deleted on destroy
 resource "aws_cloudwatch_log_group" "lambda_log" {
-  name = "/aws/lambda/${aws_lambda_function.backend.function_name}"
+  name = "/aws/lambda/${local.function_name}"
   retention_in_days=14
 
   tags = local.common_tags
