@@ -1,0 +1,21 @@
+#aws codebuild buildspec
+
+version: 0.2
+
+phases:
+  install:
+    commands:
+      # see https://medium.com/airwalk/using-the-aws-developer-tools-to-deploy-terraform-259e71486b5b
+      - "cd /usr/bin"
+      - "curl -s -qL -o terraform.zip https://releases.hashicorp.com/terraform/0.12.26/terraform_0.12.26_linux_amd64.zip"
+      - "unzip -o terraform.zip"
+  build:
+    commands:
+      #from https://github.com/aws/aws-codebuild-docker-images/issues/237
+      # MAVEN_CONFIG is set to /root/.m2 is CodeBuild Dockerfile which breaks the mvn usage
+      # see https://github.com/apache/maven/blob/master/apache-maven/src/bin/mvn#L188
+      - export MAVEN_CONFIG=''
+      - cd "$CODEBUILD_SRC_DIR"
+      - echo Build started on $(date)
+      - make cf-lambda
+      - echo Build ended on $(date)
