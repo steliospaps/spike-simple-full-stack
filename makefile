@@ -67,7 +67,9 @@ BUILD_ID:=$(shell git remote get-url origin) $(shell git rev-parse --short HEAD)
 cf-lambda: ## deploy cloudfront and lambda with code
 	$(SILENT) $(call notify,build started running cf-lambda $(BUILD_ID))
 	$(SILENT) $(MAKE) cf-lambda-wrapped || ( $(call notify,build failed $(BUILD_ID)) && false )
+	$(eval BASE_URL:=$(shell cd deploy/cloudfront && $(TERRAFORM) output frontend_base_url))
 	$(SILENT) $(call notify,build sucess $(BUILD_ID) available at $(BASE_URL))
+	$(SILENT) echo available at $(BASE_URL)
 
 cf-lambda-wrapped:
 	$(call tf_init,deploy/cloudfront)
@@ -76,7 +78,6 @@ cf-lambda-wrapped:
 	$(call tf_apply,deploy/lambda_backend)
 	$(SILENT) cd src/frontend && $(MAKE) cf-lambda-deploy
 	$(SILENT) cd src/backend && $(MAKE) lambda_deploy
-	$(eval BASE_URL:=$(shell cd deploy/cloudfront && $(TERRAFORM) output frontend_base_url))
 
 cf-lambda-plan: ## plan cloudfront and lambda with code
 	$(call tf_init,deploy/cloudfront)
@@ -93,7 +94,10 @@ cf-beanstalk-plan: ## plan cloudfront and beanstalk
 cf-beanstalk: ## create cloudfront and beanstalk
 	$(SILENT) $(call notify,cf-beanstalk started $(BUILD_ID))
 	$(SILENT) $(MAKE) cf-beanstalk-wrapped || ( $(call notify,cf-beanstalk failed $(BUILD_ID)) && false )
+	$(eval BASE_URL:=$(shell cd deploy/cloudfront && $(TERRAFORM) output frontend_base_url))
 	$(SILENT) $(call notify,cf-beanstalk sucess $(BUILD_ID) available at $(BASE_URL))
+	$(SILENT) echo available at $(BASE_URL)
+
 
 cf-beanstalk-wrapped:
 		$(call tf_init,deploy/cloudfront)
@@ -103,13 +107,12 @@ cf-beanstalk-wrapped:
 		$(call tf_apply2,deploy/eb_backend)
 		$(SILENT) cd src/frontend && $(MAKE) cf-eb-deploy
 		$(SILENT) cd src/backend && $(MAKE) ebbackend_deploy
-		$(eval BASE_URL:=$(shell cd deploy/cloudfront && $(TERRAFORM) output frontend_base_url))
 
 
 destroy: ## destroy fronetend and backend deployments
 	$(SILENT) $(call notify,destroy started $(BUILD_ID))
 	$(SILENT) $(MAKE) destroy-wrapped || ( $(call notify,destroy failed $(BUILD_ID)) && false )
-	$(SILENT) $(call notify,destroy sucess $(BUILD_ID) available at $(BASE_URL))
+	$(SILENT) $(call notify,destroy success $(BUILD_ID))
 
 destroy-wrapped:
 	$(call tf_init,deploy/cloudfront)

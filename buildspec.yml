@@ -1,4 +1,11 @@
 #aws codebuild buildspec
+# expects vars:
+#TF_VAR_STATE_DYNAMO_DB_TABLE=
+#TF_VAR_STATE_REGION=
+#TF_VAR_STATE_BUCKET=
+#SNS_ARN=
+#TF_VERSION=
+#MAKE_TARGET=
 
 version: 0.2
 
@@ -7,7 +14,7 @@ phases:
     commands:
       # see https://medium.com/airwalk/using-the-aws-developer-tools-to-deploy-terraform-259e71486b5b
       - "cd /usr/bin"
-      - "curl -s -qL -o terraform.zip https://releases.hashicorp.com/terraform/0.12.26/terraform_0.12.26_linux_amd64.zip"
+      - "curl -s -qL -o terraform.zip https://releases.hashicorp.com/terraform/${TF_VERSION:?}/terraform_${TF_VERSION:?}_linux_amd64.zip"
       - "unzip -o terraform.zip"
   build:
     commands:
@@ -17,5 +24,5 @@ phases:
       - export MAVEN_CONFIG=''
       - cd "$CODEBUILD_SRC_DIR"
       - echo Build started on $(date)
-      - make cf-lambda
+      - make ${MAKE_TARGET:?}
       - echo Build ended on $(date)
